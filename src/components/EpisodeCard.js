@@ -5,7 +5,11 @@ import { colors } from "../styles/colors";
 export default function EpisodeCard({ episode, onPress }) {
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>
-      <Image source={{ uri: episode.image }} style={styles.image} />
+      <Image
+        source={episode.image}
+        style={styles.image}
+        resizeMode="cover"
+      />
       <View style={styles.info}>
         <Text style={styles.title}>{episode.title}</Text>
         <Text style={styles.desc} numberOfLines={2}>
@@ -18,15 +22,14 @@ export default function EpisodeCard({ episode, onPress }) {
 
 const styles = StyleSheet.create({
   card: {
-    flex: 1,
     backgroundColor: colors.card,
-    borderRadius: 14,
+    borderRadius: 12,
     overflow: "hidden",
     marginBottom: 12,
   },
   image: {
     width: "100%",
-    height: 100,
+    height: 120,
   },
   info: {
     padding: 8,

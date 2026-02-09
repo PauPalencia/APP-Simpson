@@ -7,33 +7,30 @@ export default function EpisodeScreen({ route }) {
 
   return (
     <View style={styles.container}>
-      <Image source={{ uri: episode.image }} style={styles.image} />
+      <Image source={episode.image} style={styles.image} />
       <Text style={styles.title}>{episode.title}</Text>
-      <Text style={styles.text}>{episode.description}</Text>
+      <Text style={styles.desc}>{episode.description}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: colors.bg,
     padding: 16,
   },
   image: {
     width: "100%",
     height: 200,
-    borderRadius: 16,
-    marginBottom: 16,
+    borderRadius: 12,
   },
   title: {
-    color: colors.text,
-    fontSize: 22,
+    marginTop: 12,
+    fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 8,
+    color: colors.text,
   },
-  text: {
+  desc: {
+    marginTop: 8,
     color: colors.muted,
-    fontSize: 14,
   },
 });
