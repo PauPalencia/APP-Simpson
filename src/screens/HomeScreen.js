@@ -1,36 +1,51 @@
-import React from "react";
-import { View, StyleSheet } from "react-native";
-import { Grid } from "react-native-flexible-grid";
-import EpisodeCard from "../components/EpisodeCard";
+import React, { useState } from "react";
+import { View, FlatList, Button, StyleSheet } from "react-native";
+import Card from "../components/card";
 import seasons from "../components/Episodes/seasons.json";
+import { episodeImages } from "../utils/episodeImages";
 
 export default function HomeScreen({ navigation }) {
-  const episodes = seasons.season1.map(ep => ({
-    ...ep,
-    image: require(`../../assets/episodes/${ep.image}`)
-  }));
+  const [isList, setIsList] = useState(false);
+
+  // Todas las temporadas automáticamente
+  const seasonKeys = Object.keys(seasons); // ["season1", "season2", ..., "season34"]
+
+  // Cambiar key para forzar rerender al cambiar columnas
+  const listKey = isList ? 'list' : 'grid';
 
   return (
     <View style={styles.container}>
-      <Grid
-        data={episodes}
-        renderItem={({ item }) => (
-          <EpisodeCard
-            episode={item}
-            onPress={() =>
-              navigation.navigate("Episode", { episode: item })
-            }
-          />
-        )}
-        itemSpacing={12}
-        itemsPerRow={2}
+      <Button
+        title={isList ? "Modo Cuadrícula" : "Modo Lista"}
+        onPress={() => setIsList(!isList)}
+      />
+
+      <FlatList
+        key={listKey}
+        data={seasonKeys}
+        keyExtractor={(item) => item}
+        numColumns={isList ? 1 : 2}
+        columnWrapperStyle={isList ? null : { justifyContent: "space-between" }}
+        renderItem={({ item }) => {
+          // Obtener imagen de la temporada: Season_1_Icon.webp, Season_2_Icon.webp...
+          const seasonNumber = item.replace("season", ""); // "1", "2", ...
+          const seasonImageName = `Season_${seasonNumber}_Icon.webp`;
+          const seasonImage = episodeImages[seasonImageName];
+
+          return (
+            <Card
+              title={`Temporada ${seasonNumber}`}
+              image={seasonImage}
+              onPress={() => navigation.navigate("Season", { seasonKey: item })}
+              isList={isList}
+            />
+          );
+        }}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 12,
-  },
+  container: { flex: 1, padding: 12 },
 });
