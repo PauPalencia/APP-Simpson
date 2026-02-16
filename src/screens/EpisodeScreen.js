@@ -41,7 +41,7 @@ async function getStoredMap(key) {
 }
 
 export default function EpisodeScreen({ route }) {
-  const { episode } = route.params;
+  const episode = route?.params?.episode || {};
   const episodeCode = useMemo(() => getEpisodeCode(episode), [episode]);
   const seasonEpisode = useMemo(() => getSeasonAndEpisode(episode), [episode]);
 
@@ -102,12 +102,14 @@ export default function EpisodeScreen({ route }) {
 
   return (
     <View style={styles.container}>
-      <Image source={episodeImages[episode.image]} style={styles.image} />
-      <Text style={styles.title}>{episode.title}</Text>
+      {episodeImages[episode?.image] ? (
+        <Image source={episodeImages[episode.image]} style={styles.image} />
+      ) : null}
+      <Text style={styles.title}>{episode?.title || "Episodio"}</Text>
       <Text style={styles.meta}>
         Temporada {seasonEpisode.season} · Capítulo {seasonEpisode.episode}
       </Text>
-      <Text style={styles.desc}>{episode.description}</Text>
+      <Text style={styles.desc}>{episode?.description || "Sin descripción disponible"}</Text>
 
       <View style={styles.actions}>
         <Button

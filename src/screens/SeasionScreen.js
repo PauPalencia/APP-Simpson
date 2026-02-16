@@ -18,11 +18,13 @@ const episodeInfoById = new Map(
 );
 
 export default function SeasonScreen({ route, navigation }) {
-  const { seasonKey } = route.params;
+  const seasonKey = route?.params?.seasonKey;
   const [isList, setIsList] = useState(false);
 
-  const episodes = (seasons[seasonKey] || []).map((episode) => {
-    const episodeId = episode.image.replace(".webp", "");
+  const rawEpisodes = seasonKey ? seasons?.[seasonKey] : [];
+  const episodes = (Array.isArray(rawEpisodes) ? rawEpisodes : []).map((episode) => {
+    const imageName = episode?.image || "";
+    const episodeId = imageName.replace(".webp", "");
     const extraInfo = episodeInfoById.get(episodeId);
 
     if (!extraInfo) {
@@ -48,7 +50,7 @@ export default function SeasonScreen({ route, navigation }) {
       <FlatList
         key={listKey} // FORZAR rerender
         data={episodes}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item, index) => (item?.id != null ? String(item.id) : `${seasonKey || "season"}-${index}`)}
         numColumns={isList ? 1 : 2}
         columnWrapperStyle={isList ? null : { justifyContent: "space-between" }}
         renderItem={({ item }) => (
