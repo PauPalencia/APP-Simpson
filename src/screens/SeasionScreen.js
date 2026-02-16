@@ -5,9 +5,15 @@ import { episodeImages } from "../utils/episodeImages";
 import seasons from "../components/Episodes/seasons.json";
 import infoCaps from "../components/Episodes/Info.Caps";
 
+const infoCapsSeasons = Array.isArray(infoCaps?.seasons)
+  ? infoCaps.seasons
+  : Array.isArray(infoCaps)
+    ? infoCaps
+    : [];
+
 const episodeInfoById = new Map(
-  infoCaps.seasons.flatMap((season) =>
-    season.episodes.map((episode) => [episode.id, episode])
+  infoCapsSeasons.flatMap((season) =>
+    (season?.episodes || []).map((episode) => [episode.id, episode])
   )
 );
 
