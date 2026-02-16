@@ -10,7 +10,7 @@ export default function HomeScreen({ navigation }) {
   // Todas las temporadas automáticamente
   const seasonKeys = Object.keys(seasons); // ["season1", "season2", ..., "season34"]
 
-  // Cambiar key para forzar rerender al cambiar columnas
+  // Cambiar key para forzar rerender al cambiar columnasasd
   const listKey = isList ? 'list' : 'grid';
 
   return (
