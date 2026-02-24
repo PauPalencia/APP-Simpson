@@ -13,7 +13,17 @@ export default function App() {
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Season" component={SeasonScreen} />
-        <Stack.Screen name="Episode" component={EpisodeScreen} />
+        <Stack.Screen
+          name="Episode"
+          component={EpisodeScreen}
+          options={({ route }) => {
+            const selectedSeason = route?.params?.episode?.seasonId;
+
+            return {
+              title: selectedSeason ? `Temporada ${selectedSeason}` : "Episodio",
+            };
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
