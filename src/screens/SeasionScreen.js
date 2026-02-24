@@ -2,61 +2,71 @@ import React, { useMemo, useState } from "react";
 import { View, FlatList, Button, StyleSheet } from "react-native";
 import Card from "../components/card";
 import { episodeImages } from "../utils/episodeImages";
-import seasons from "../components/Episodes/seasons.json";
+import seasonsSource from "../components/Episodes/seasons.json";
 import infoCapsSource from "../components/Episodes/Info.Caps";
 
-function resolveInfoCapsSeasons(source) {
-  if (Array.isArray(source)) {
-    return source;
+function unwrapDefaultChain(value) {
+  let current = value;
+  let guard = 0;
+
+  while (current && typeof current === "object" && "default" in current && guard < 6) {
+    current = current.default;
+    guard += 1;
   }
 
-  if (!source || typeof source !== "object") {
+  return current;
+}
+
+function resolveSeasonsJson(source) {
+  const normalized = unwrapDefaultChain(source);
+
+  if (normalized && typeof normalized === "object" && !Array.isArray(normalized)) {
+    return normalized;
+  }
+
+  return {};
+}
+
+function resolveInfoCapsEpisodes(source) {
+  const normalized = unwrapDefaultChain(source);
+
+  if (!normalized || typeof normalized !== "object") {
     return [];
   }
 
-  if (Array.isArray(source.seasons)) {
-    return source.seasons;
-  }
+  const list = Array.isArray(normalized.seasons) ? normalized.seasons : [];
 
-  if (Array.isArray(source.default)) {
-    return source.default;
-  }
-
-  if (Array.isArray(source.default?.seasons)) {
-    return source.default.seasons;
-  }
-
-  return [];
+  return list.flatMap((season) =>
+    Array.isArray(season?.episodes) ? season.episodes : []
+  );
 }
 
 export default function SeasonScreen({ route, navigation }) {
   const seasonKey = route?.params?.seasonKey;
   const [isList, setIsList] = useState(false);
 
+  const seasons = useMemo(() => resolveSeasonsJson(seasonsSource), []);
+
   const episodeInfoById = useMemo(() => {
-    const infoCapsSeasons = resolveInfoCapsSeasons(infoCapsSource);
+    const episodes = resolveInfoCapsEpisodes(infoCapsSource);
 
     return new Map(
-      infoCapsSeasons.flatMap((season) =>
-        (Array.isArray(season?.episodes) ? season.episodes : []).map((episode) => [episode?.id, episode])
-      )
+      episodes
+        .filter((episode) => typeof episode?.id === "string" && episode.id.length > 0)
+        .map((episode) => [episode.id, episode])
     );
   }, []);
 
-  const rawEpisodes = seasonKey ? seasons?.[seasonKey] : [];
+  const rawEpisodes = seasonKey ? seasons[seasonKey] : [];
   const episodes = (Array.isArray(rawEpisodes) ? rawEpisodes : []).map((episode) => {
     const imageName = typeof episode?.image === "string" ? episode.image : "";
     const episodeId = imageName.replace(".webp", "");
     const extraInfo = episodeInfoById.get(episodeId);
 
-    if (!extraInfo) {
-      return episode;
-    }
-
     return {
       ...episode,
-      title: extraInfo.title || episode?.title,
-      description: extraInfo.synopsis || episode?.description,
+      title: extraInfo?.title || episode?.title || "Episodio",
+      description: extraInfo?.synopsis || episode?.description || "Sin descripción disponible",
     };
   });
 
@@ -81,7 +91,7 @@ export default function SeasonScreen({ route, navigation }) {
           <Card
             title={item?.title || "Episodio"}
             image={episodeImages[item?.image]}
-            onPress={() => navigation.navigate("Episode", { episode: item })}
+            onPress={() => navigation.navigate("Episode", { episode: item || {} })}
             isList={isList}
           />
         )}

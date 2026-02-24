@@ -1,17 +1,38 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { View, FlatList, Button, StyleSheet } from "react-native";
 import Card from "../components/card";
-import seasons from "../components/Episodes/seasons.json";
+import seasonsSource from "../components/Episodes/seasons.json";
 import { episodeImages } from "../utils/episodeImages";
+
+function unwrapDefaultChain(value) {
+  let current = value;
+  let guard = 0;
+
+  while (current && typeof current === "object" && "default" in current && guard < 6) {
+    current = current.default;
+    guard += 1;
+  }
+
+  return current;
+}
+
+function resolveSeasonsJson(source) {
+  const normalized = unwrapDefaultChain(source);
+
+  if (normalized && typeof normalized === "object" && !Array.isArray(normalized)) {
+    return normalized;
+  }
+
+  return {};
+}
 
 export default function HomeScreen({ navigation }) {
   const [isList, setIsList] = useState(false);
 
-  // Todas las temporadas automáticamente
-  const seasonKeys = Object.keys(seasons); // ["season1", "season2", ..., "season34"]
+  const seasons = useMemo(() => resolveSeasonsJson(seasonsSource), []);
+  const seasonKeys = useMemo(() => Object.keys(seasons), [seasons]);
 
-  // Cambiar key para forzar rerender al cambiar columnasasd
-  const listKey = isList ? 'list' : 'grid';
+  const listKey = isList ? "list" : "grid";
 
   return (
     <View style={styles.container}>
@@ -27,8 +48,7 @@ export default function HomeScreen({ navigation }) {
         numColumns={isList ? 1 : 2}
         columnWrapperStyle={isList ? null : { justifyContent: "space-between" }}
         renderItem={({ item }) => {
-          // Obtener imagen de la temporada: Season_1_Icon.webp, Season_2_Icon.webp...
-          const seasonNumber = item.replace("season", ""); // "1", "2", ...
+          const seasonNumber = String(item || "").replace("season", "");
           const seasonImageName = `Season_${seasonNumber}_Icon.webp`;
           const seasonImage = episodeImages[seasonImageName];
 
