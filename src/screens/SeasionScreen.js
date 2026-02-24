@@ -62,11 +62,14 @@ export default function SeasonScreen({ route, navigation }) {
     }, {});
   }, []);
 
-  const rawEpisodes = seasonKey ? seasonsByKey[seasonKey] : [];
-  const episodes = Array.isArray(rawEpisodes) ? rawEpisodes : [];
+    const rawEpisodes = seasonKey ? seasonsByKey[seasonKey] : [];
+    const episodes = Array.isArray(rawEpisodes) ? rawEpisodes : [];
+    const selectedSeasonId = String(seasonKey || "").replace("season", "");
+    const selectedSeasonTitle = selectedSeasonId
+      ? `Temporada ${selectedSeasonId}`
+      : "Temporada seleccionada";
 
-  const listKey = isList ? "list" : "grid";
-
+    const listKey = isList ? "list" : "grid";
   return (
     <View style={styles.container}>
       <Button
@@ -88,7 +91,13 @@ export default function SeasonScreen({ route, navigation }) {
           <Card
             title={item?.title || "Episodio"}
             image={episodeImages[item?.image]}
-            onPress={() => navigation.navigate("Episode", { episode: item || {} })}
+            onPress={() =>
+              navigation.navigate("Episode", {
+            episode: item || {},
+            selectedSeasonTitle,
+            })
+
+            }
             isList={isList}
           />
         )}
