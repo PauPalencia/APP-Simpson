@@ -2,7 +2,6 @@ import React, { useMemo, useState } from "react";
 import { View, FlatList, Button, StyleSheet } from "react-native";
 import Card from "../components/card";
 import { episodeImages } from "../utils/episodeImages";
-import seasonsSource from "../components/Episodes/seasons.json";
 import infoCapsSource from "../components/Episodes/Info.Caps";
 
 function unwrapDefaultChain(value) {
@@ -17,58 +16,47 @@ function unwrapDefaultChain(value) {
   return current;
 }
 
-function resolveSeasonsJson(source) {
+function resolveInfoCapsSeasons(source) {
   const normalized = unwrapDefaultChain(source);
 
-  if (normalized && typeof normalized === "object" && !Array.isArray(normalized)) {
-    return normalized;
+  if (normalized && typeof normalized === "object" && Array.isArray(normalized.seasons)) {
+    return normalized.seasons;
   }
 
-  return {};
+  return [];
 }
 
-function resolveInfoCapsEpisodes(source) {
-  const normalized = unwrapDefaultChain(source);
+function mapInfoEpisode(episode) {
+  const id = episode?.id || "";
+  const image = typeof episode?.image === "string"
+    ? episode.image.replace(".jpg", ".webp")
+    : `${id}.webp`;
 
-  if (!normalized || typeof normalized !== "object") {
-    return [];
-  }
-
-  const list = Array.isArray(normalized.seasons) ? normalized.seasons : [];
-
-  return list.flatMap((season) =>
-    Array.isArray(season?.episodes) ? season.episodes : []
-  );
+  return {
+    id,
+    title: episode?.title || "Episodio",
+    description: episode?.synopsis || "Sin descripción disponible",
+    image,
+  };
 }
 
 export default function SeasonScreen({ route, navigation }) {
   const seasonKey = route?.params?.seasonKey;
   const [isList, setIsList] = useState(false);
 
-  const seasons = useMemo(() => resolveSeasonsJson(seasonsSource), []);
+  const seasonsByKey = useMemo(() => {
+    const seasonsList = resolveInfoCapsSeasons(infoCapsSource);
 
-  const episodeInfoById = useMemo(() => {
-    const episodes = resolveInfoCapsEpisodes(infoCapsSource);
-
-    return new Map(
-      episodes
-        .filter((episode) => typeof episode?.id === "string" && episode.id.length > 0)
-        .map((episode) => [episode.id, episode])
-    );
+    return seasonsList.reduce((acc, season, index) => {
+      const key = `season${season?.id || index + 1}`;
+      const episodes = Array.isArray(season?.episodes) ? season.episodes.map(mapInfoEpisode) : [];
+      acc[key] = episodes;
+      return acc;
+    }, {});
   }, []);
 
-  const rawEpisodes = seasonKey ? seasons[seasonKey] : [];
-  const episodes = (Array.isArray(rawEpisodes) ? rawEpisodes : []).map((episode) => {
-    const imageName = typeof episode?.image === "string" ? episode.image : "";
-    const episodeId = imageName.replace(".webp", "");
-    const extraInfo = episodeInfoById.get(episodeId);
-
-    return {
-      ...episode,
-      title: extraInfo?.title || episode?.title || "Episodio",
-      description: extraInfo?.synopsis || episode?.description || "Sin descripción disponible",
-    };
-  });
+  const rawEpisodes = seasonKey ? seasonsByKey[seasonKey] : [];
+  const episodes = Array.isArray(rawEpisodes) ? rawEpisodes : [];
 
   const listKey = isList ? "list" : "grid";
 

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { View, FlatList, Button, StyleSheet } from "react-native";
 import Card from "../components/card";
-import seasonsSource from "../components/Episodes/seasons.json";
+import infoCapsSource from "../components/Episodes/Info.Caps";
 import { episodeImages } from "../utils/episodeImages";
 
 function unwrapDefaultChain(value) {
@@ -16,21 +16,29 @@ function unwrapDefaultChain(value) {
   return current;
 }
 
-function resolveSeasonsJson(source) {
+function resolveInfoCapsSeasons(source) {
   const normalized = unwrapDefaultChain(source);
 
-  if (normalized && typeof normalized === "object" && !Array.isArray(normalized)) {
-    return normalized;
+  if (normalized && typeof normalized === "object" && Array.isArray(normalized.seasons)) {
+    return normalized.seasons;
   }
 
-  return {};
+  return [];
 }
 
 export default function HomeScreen({ navigation }) {
   const [isList, setIsList] = useState(false);
 
-  const seasons = useMemo(() => resolveSeasonsJson(seasonsSource), []);
-  const seasonKeys = useMemo(() => Object.keys(seasons), [seasons]);
+  const seasons = useMemo(() => resolveInfoCapsSeasons(infoCapsSource), []);
+
+  const seasonKeys = useMemo(
+    () => seasons.map((season, index) => ({
+      key: `season${season?.id || index + 1}`,
+      id: season?.id || index + 1,
+      image: `Season_${season?.id || index + 1}_Icon.webp`,
+    })),
+    [seasons]
+  );
 
   const listKey = isList ? "list" : "grid";
 
@@ -44,23 +52,17 @@ export default function HomeScreen({ navigation }) {
       <FlatList
         key={listKey}
         data={seasonKeys}
-        keyExtractor={(item) => item}
+        keyExtractor={(item) => item.key}
         numColumns={isList ? 1 : 2}
         columnWrapperStyle={isList ? null : { justifyContent: "space-between" }}
-        renderItem={({ item }) => {
-          const seasonNumber = String(item || "").replace("season", "");
-          const seasonImageName = `Season_${seasonNumber}_Icon.webp`;
-          const seasonImage = episodeImages[seasonImageName];
-
-          return (
-            <Card
-              title={`Temporada ${seasonNumber}`}
-              image={seasonImage}
-              onPress={() => navigation.navigate("Season", { seasonKey: item })}
-              isList={isList}
-            />
-          );
-        }}
+        renderItem={({ item }) => (
+          <Card
+            title={`Temporada ${item.id}`}
+            image={episodeImages[item.image]}
+            onPress={() => navigation.navigate("Season", { seasonKey: item.key })}
+            isList={isList}
+          />
+        )}
       />
     </View>
   );
