@@ -17,10 +17,13 @@ export default function App() {
           name="Episode"
           component={EpisodeScreen}
           options={({ route }) => {
+            const selectedSeasonTitle = route?.params?.selectedSeasonTitle;
             const selectedSeason = route?.params?.episode?.seasonId;
 
             return {
-              title: selectedSeason ? `Temporada ${selectedSeason}` : "Episodio",
+              title:
+                selectedSeasonTitle ||
+                (selectedSeason ? `Temporada ${selectedSeason}` : "Episodio"),
             };
           }}
         />

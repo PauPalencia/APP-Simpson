@@ -86,7 +86,12 @@ export default function SeasonScreen({ route, navigation }) {
           <Card
             title={item?.title || "Episodio"}
             image={episodeImages[item?.image]}
-            onPress={() => navigation.navigate("Episode", { episode: item || {} })}
+            onPress={() =>
+              navigation.navigate("Episode", {
+                episode: item || {},
+                selectedSeasonTitle: `Temporada ${item?.seasonId || ""}`.trim(),
+              })
+            }
             isList={isList}
           />
         )}
