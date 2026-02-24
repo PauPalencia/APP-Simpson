@@ -26,15 +26,19 @@ function resolveInfoCapsSeasons(source) {
   return [];
 }
 
-function mapInfoEpisode(episode) {
+function mapInfoEpisode(episode, seasonId) {
   const id = episode?.id || "";
-  const image = typeof episode?.image === "string"
-    ? episode.image.replace(".jpg", ".webp")
-    : `${id}.webp`;
+  const rawImage = typeof episode?.image === "string" ? episode.image : "";
+  const image = rawImage ? rawImage.replace(".jpg", ".webp") : `${id}.webp`;
 
   return {
     id,
+    seasonId: seasonId || null,
+    episodeNumber: episode?.episodeNumber ?? null,
     title: episode?.title || "Episodio",
+    duration: episode?.duration || "",
+    airDate: episode?.airDate || "",
+    synopsis: episode?.synopsis || "Sin descripción disponible",
     description: episode?.synopsis || "Sin descripción disponible",
     image,
   };
@@ -48,8 +52,11 @@ export default function SeasonScreen({ route, navigation }) {
     const seasonsList = resolveInfoCapsSeasons(infoCapsSource);
 
     return seasonsList.reduce((acc, season, index) => {
-      const key = `season${season?.id || index + 1}`;
-      const episodes = Array.isArray(season?.episodes) ? season.episodes.map(mapInfoEpisode) : [];
+      const seasonId = season?.id || index + 1;
+      const key = `season${seasonId}`;
+      const episodes = Array.isArray(season?.episodes)
+        ? season.episodes.map((episode) => mapInfoEpisode(episode, seasonId))
+        : [];
       acc[key] = episodes;
       return acc;
     }, {});
