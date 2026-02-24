@@ -1,6 +1,6 @@
 import React from "react";
 import { TouchableOpacity, Text, Image, View, StyleSheet } from "react-native";
-
+import { activePalette } from "../screens/EpisodeScreen";
 export default function Card({ title, image, onPress, isList }) {
   return (
     <TouchableOpacity style={isList ? styles.listCard : styles.gridCard} onPress={onPress}>
@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderRadius: 8,
     overflow: "hidden",
-    backgroundColor: "#eee",
+    backgroundColor: activePalette.primary,
     alignItems: "center",
   },
   gridImage: {
@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
     padding: 8,
     marginBottom: 8,
     borderRadius: 8,
-    backgroundColor: "#eee",
+    backgroundColor: activePalette.primary,
   },
   listImage: {
     width: 80,
@@ -38,5 +38,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: "bold",
+    color: activePalette.text,
+    padding: 6,
   },
 });
