@@ -35,6 +35,12 @@
         "projectId": "8951fe18-8b7a-4600-99cd-7791970bcd35"
       }
     },
-    "owner": "ppalencias-organization"
+    "owner": "ppalencias-organization",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/8951fe18-8b7a-4600-99cd-7791970bcd35"
+    }
   }
 }
