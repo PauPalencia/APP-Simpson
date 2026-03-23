@@ -64,6 +64,10 @@ export default function SeasonScreen({ route, navigation }) {
 
   const rawEpisodes = seasonKey ? seasonsByKey[seasonKey] : [];
   const episodes = Array.isArray(rawEpisodes) ? rawEpisodes : [];
+  const selectedSeasonId = String(seasonKey || "").replace("season", "");
+  const selectedSeasonTitle = selectedSeasonId
+    ? `Temporada ${selectedSeasonId}`
+    : "Temporada seleccionada";
 
   const listKey = isList ? "list" : "grid";
 
@@ -89,7 +93,7 @@ export default function SeasonScreen({ route, navigation }) {
             onPress={() =>
               navigation.navigate("Episode", {
                 episode: item || {},
-                selectedSeasonTitle: `Temporada ${item?.seasonId || ""}`.trim(),
+                selectedSeasonTitle,
               })
             }
             isList={isList}

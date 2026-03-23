@@ -23,7 +23,7 @@ export default function App() {
             return {
               title:
                 selectedSeasonTitle ||
-                (selectedSeason ? `Temporada ${selectedSeason}` : "Episodio"),
+                (selectedSeason ? `Temporada ${selectedSeason}` : "Temporada seleccionada"),
             };
           }}
         />
